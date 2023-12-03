@@ -47,12 +47,43 @@ router.post('/', (req, res) => {
 
 });
 
-router.put('/:id', (req, res) => {
-  // update a category by its `id` value
+router.put('/:id', async (req, res) => {
+  const id = req.params.id;
+  const newData = req.body;
+
+  try {
+    const category = await Category.findByPk(id);
+
+    if (!category) {
+      return res.status(404).send({ error: "Category not found" });
+    }
+
+    category.category_name = newData.category_name;
+
+    await category.save();
+
+    res.send({ message: "Category updated successfully!" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
-router.delete('/:id', (req, res) => {
-  // delete a category by its `id` value
+router.delete('/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const category = await Category.destroy({
+      where: {
+        id,
+      },
+    });
+    res.send({
+      message: "Category deleted from database!",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 module.exports = router;
